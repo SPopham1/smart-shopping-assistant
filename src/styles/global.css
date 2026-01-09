@@ -1,15 +1,12 @@
 @import "tailwindcss";
-@import "./components.css";
 
 @layer components {
+  .container {
+    @apply max-w-screen-xl mx-auto px-4 md:px-6 lg:px-10 xl:px-16;
+  }
+
   .btn-primary {
-    @apply inline-flex items-center justify-center
-      rounded-md
-      bg-green-700
-      px-4 py-2
-      text-sm font-semibold text-white
-      hover:bg-green-800
-      focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2;
+    @apply bg-green-700 text-white px-6 py-3 rounded-md font-semibold hover:bg-green-800 transition min-h-12;
   }
 
   .btn-secondary {
@@ -21,5 +18,13 @@
       text-sm font-semibold text-gray-700
       hover:bg-gray-50
       focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-md p-8;
   }
 }
