@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCJavQZvpQboYTaXdBQ9ctToredMlvRZlM",
+  apiKey: "AIzaSyDwTy0Pa6PPqBYdzRqx2ngPsFCjpJkTL4A",
   authDomain: "smart-shopping-assistant-351fc.firebaseapp.com",
   projectId: "smart-shopping-assistant-351fc",
   storageBucket: "smart-shopping-assistant-351fc.firebasestorage.app",
