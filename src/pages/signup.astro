@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
+
+const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout>
@@ -30,15 +32,17 @@ import Header from "../components/Header.astro";
 
       <p class="text-sm text-center text-gray-600 mt-4">
         Already have an account?
-        <a href="/login" class="text-green-700 font-medium hover:underline">
+        <a href={`${baseUrl}login/`} class="text-green-700 font-medium hover:underline">
           Log in
         </a>
       </p>
     </div>
   </main>
 
-  <script type="module">
-    import { signup } from "/auth.js";
+  <script type="module" define:vars={{ baseUrl }}>
+    import { signup } from `${baseUrl}auth.js`;
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { auth } from `${baseUrl}firebase.js`;
 
     const form = document.getElementById("signupForm");
 
@@ -50,19 +54,16 @@ import Header from "../components/Header.astro";
 
       try {
         await signup(email, password);
-        window.location.href = import.meta.env.BASE_URL;
+        window.location.href = baseUrl;
       } catch (err) {
         alert(err.message);
         console.error(err);
       }
     });
 
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { auth } from "/firebase.js";
-
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        window.location.href = import.meta.env.BASE_URL;
+        window.location.href = baseUrl;
       }
     });
   </script>
