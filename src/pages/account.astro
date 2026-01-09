@@ -1,0 +1,72 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<BaseLayout>
+  <Header />
+
+  <main class="container py-12">
+    <div class="card max-w-2xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">My Account</h1>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
+          <p id="userEmail" class="text-lg">Loading...</p>
+        </div>
+
+        <div class="pt-4">
+          <h2 class="text-xl font-semibold mb-3">Account Actions</h2>
+          <button id="deleteAccountBtn" class="btn-secondary">
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" define:vars={{ baseUrl }}>
+    const authUrl = baseUrl + "auth.js";
+
+    import(authUrl).then(({ auth }) => {
+      import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js").then(
+        ({ onAuthStateChanged }) => {
+          const userEmailEl = document.getElementById("userEmail");
+          const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+
+          onAuthStateChanged(auth, (user) => {
+            if (!user) {
+              window.location.href = baseUrl + "login/";
+            } else {
+              userEmailEl.textContent = user.email;
+            }
+          });
+
+          deleteAccountBtn.addEventListener("click", async () => {
+            if (
+              confirm(
+                "Are you sure you want to delete your account? This cannot be undone."
+              )
+            ) {
+              try {
+                const user = auth.currentUser;
+                if (user) {
+                  await user.delete();
+                  alert("Account deleted successfully");
+                  window.location.href = baseUrl;
+                }
+              } catch (error) {
+                alert("Error deleting account: " + error.message);
+              }
+            }
+          });
+        }
+      );
+    });
+  </script>
+</BaseLayout>

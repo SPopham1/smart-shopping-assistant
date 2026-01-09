@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 
 const baseUrl = import.meta.env.BASE_URL;
+const recaptchaSiteKey = "6LcGkkUsAAAAADb42z1UrcVX-tz69EzvhLldcLzR";
 ---
 
 <BaseLayout>
@@ -12,59 +13,214 @@ const baseUrl = import.meta.env.BASE_URL;
     <div class="card w-full max-w-md">
       <h2 class="text-2xl font-semibold mb-6 text-center">Create an account</h2>
 
+      <div
+        id="errorMessage"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+      >
+      </div>
+
       <form id="signupForm" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Email
           </label>
-          <input type="email" required class="input" />
+          <input type="email" id="emailInput" required class="input" />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Password
           </label>
-          <input type="password" minlength="6" required class="input" />
+          <input
+            type="password"
+            id="passwordInput"
+            minlength="8"
+            required
+            class="input"
+          />
+
+          <!-- Password Requirements -->
+          <div class="mt-2 space-y-1 text-sm">
+            <div id="req-length" class="flex items-center gap-2 text-gray-500">
+              <span class="requirement-icon">○</span>
+              <span>At least 8 characters</span>
+            </div>
+            <div
+              id="req-uppercase"
+              class="flex items-center gap-2 text-gray-500"
+            >
+              <span class="requirement-icon">○</span>
+              <span>One uppercase letter</span>
+            </div>
+            <div
+              id="req-lowercase"
+              class="flex items-center gap-2 text-gray-500"
+            >
+              <span class="requirement-icon">○</span>
+              <span>One lowercase letter</span>
+            </div>
+            <div id="req-number" class="flex items-center gap-2 text-gray-500">
+              <span class="requirement-icon">○</span>
+              <span>One number</span>
+            </div>
+            <div id="req-special" class="flex items-center gap-2 text-gray-500">
+              <span class="requirement-icon">○</span>
+              <span>One special character (!@#$%^&*)</span>
+            </div>
+          </div>
         </div>
 
-        <button type="submit" class="btn-primary w-full"> Sign up </button>
+        <button type="submit" class="btn-primary w-full" id="submitBtn">
+          Sign up
+        </button>
       </form>
 
       <p class="text-sm text-center text-gray-600 mt-4">
         Already have an account?
-        <a href={`${baseUrl}login/`} class="text-green-700 font-medium hover:underline">
+        <a
+          href={baseUrl + "login/"}
+          class="text-green-700 font-medium hover:underline"
+        >
           Log in
         </a>
       </p>
     </div>
   </main>
 
-  <script type="module" define:vars={{ baseUrl }}>
-    import { signup } from `${baseUrl}auth.js`;
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { auth } from `${baseUrl}firebase.js`;
+  <!-- Load reCAPTCHA v3 -->
+  <script
+    src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`}
+  ></script>
 
-    const form = document.getElementById("signupForm");
+  <script type="module" define:vars={{ baseUrl, recaptchaSiteKey }}>
+    const authUrl = baseUrl + "auth.js";
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    import(authUrl).then(({ signup, auth }) => {
+      import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js").then(
+        ({ onAuthStateChanged }) => {
+          const form = document.getElementById("signupForm");
+          const emailInput = document.getElementById("emailInput");
+          const passwordInput = document.getElementById("passwordInput");
+          const submitBtn = document.getElementById("submitBtn");
+          const errorMessage = document.getElementById("errorMessage");
 
-      const email = form.querySelector('input[type="email"]').value;
-      const password = form.querySelector('input[type="password"]').value;
+          // Password requirement elements
+          const reqLength = document.getElementById("req-length");
+          const reqUppercase = document.getElementById("req-uppercase");
+          const reqLowercase = document.getElementById("req-lowercase");
+          const reqNumber = document.getElementById("req-number");
+          const reqSpecial = document.getElementById("req-special");
 
-      try {
-        await signup(email, password);
-        window.location.href = baseUrl;
-      } catch (err) {
-        alert(err.message);
-        console.error(err);
-      }
-    });
+          function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove("hidden");
+          }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        window.location.href = baseUrl;
-      }
+          function hideError() {
+            errorMessage.classList.add("hidden");
+          }
+
+          // Password validation
+          function validatePassword(password) {
+            const requirements = {
+              length: password.length >= 8,
+              uppercase: /[A-Z]/.test(password),
+              lowercase: /[a-z]/.test(password),
+              number: /[0-9]/.test(password),
+              special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+            };
+
+            // Update UI
+            updateRequirement(reqLength, requirements.length);
+            updateRequirement(reqUppercase, requirements.uppercase);
+            updateRequirement(reqLowercase, requirements.lowercase);
+            updateRequirement(reqNumber, requirements.number);
+            updateRequirement(reqSpecial, requirements.special);
+
+            return Object.values(requirements).every((req) => req);
+          }
+
+          function updateRequirement(element, isMet) {
+            const icon = element.querySelector(".requirement-icon");
+            if (isMet) {
+              element.classList.remove("text-gray-500");
+              element.classList.add("text-green-600");
+              icon.textContent = "✓";
+            } else {
+              element.classList.remove("text-green-600");
+              element.classList.add("text-gray-500");
+              icon.textContent = "○";
+            }
+          }
+
+          // Real-time password validation
+          passwordInput.addEventListener("input", (e) => {
+            validatePassword(e.target.value);
+          });
+
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            hideError();
+
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            // Validate password requirements
+            if (!validatePassword(password)) {
+              showError("Please meet all password requirements");
+              return;
+            }
+
+            console.log("Attempting signup with:", email);
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Creating account...";
+
+            try {
+              // Execute reCAPTCHA v3
+              const token = await grecaptcha.execute(recaptchaSiteKey, {
+                action: "signup",
+              });
+              console.log("reCAPTCHA token obtained");
+
+              // Proceed with signup
+              await signup(email, password);
+              console.log("Signup successful!");
+              window.location.href = baseUrl;
+            } catch (err) {
+              console.error("Signup error:", err);
+              let message = "Signup failed. Please try again.";
+
+              if (err.code === "auth/email-already-in-use") {
+                message = "An account with this email already exists.";
+              } else if (err.code === "auth/invalid-email") {
+                message = "Invalid email address.";
+              } else if (err.code === "auth/weak-password") {
+                message = "Password does not meet requirements.";
+              }
+
+              showError(message);
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Sign up";
+            }
+          });
+
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              console.log("User already logged in, redirecting...");
+              window.location.href = baseUrl;
+            }
+          });
+        }
+      );
     });
   </script>
+
+  <style>
+    .requirement-icon {
+      display: inline-block;
+      width: 16px;
+      font-weight: bold;
+    }
+  </style>
 </BaseLayout>

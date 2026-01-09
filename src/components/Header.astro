@@ -1,7 +1,6 @@
 ---
 const showNav = Astro.props.showNav ?? true;
 const baseUrl = import.meta.env.BASE_URL;
-console.log('BASE_URL in Header:', baseUrl); // Debug log
 ---
 
 <header class="bg-white border-b border-gray-200">
@@ -11,16 +10,18 @@ console.log('BASE_URL in Header:', baseUrl); // Debug log
     <div class="max-w-screen-xl mx-auto flex items-center justify-between py-4">
       <!-- Left -->
       <div class="flex items-center gap-8">
-        <a href={baseUrl} class="text-xl font-bold text-green-700"> SmartShop </a>
+        <a href={baseUrl} class="text-xl font-bold text-green-700">
+          SmartShop
+        </a>
 
         {
           showNav && (
             <nav class="hidden md:flex gap-6 text-gray-700">
-              <a href="#" class="hover:text-green-700">
-                Groceries
+              <a href={baseUrl + "list/"} class="hover:text-green-700">
+                New List
               </a>
-              <a href="#" class="hover:text-green-700">
-                My list
+              <a href={baseUrl + "lists/"} class="hover:text-green-700">
+                My Lists
               </a>
               <a href="#" class="hover:text-green-700">
                 Help
@@ -32,7 +33,17 @@ console.log('BASE_URL in Header:', baseUrl); // Debug log
 
       <!-- Right -->
       <div class="flex items-center gap-3">
-        <a id="accountBtn" href={baseUrl + 'login/'} class="btn-primary">
+        <!-- Show when NOT logged in -->
+        <a id="loginBtn" href={baseUrl + "login/"} class="btn-primary">
+          Log in
+        </a>
+
+        <!-- Show when logged in -->
+        <a
+          id="accountBtn"
+          href={baseUrl + "account/"}
+          class="btn-primary hidden"
+        >
           Account
         </a>
 
@@ -42,28 +53,33 @@ console.log('BASE_URL in Header:', baseUrl); // Debug log
   </div>
 
   <script type="module" define:vars={{ baseUrl }}>
-    import {
-      onAuthStateChanged,
-      signOut,
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { auth } from `${baseUrl}firebase.js`;
+    const authUrl = baseUrl + "auth.js";
 
-    const logoutBtn = document.getElementById("logoutBtn");
-    const accountBtn = document.getElementById("accountBtn");
+    import(authUrl).then(({ auth }) => {
+      import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js").then(
+        ({ onAuthStateChanged, signOut }) => {
+          const loginBtn = document.getElementById("loginBtn");
+          const logoutBtn = document.getElementById("logoutBtn");
+          const accountBtn = document.getElementById("accountBtn");
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        logoutBtn.classList.remove("hidden");
-        accountBtn.classList.add("hidden");
-      } else {
-        logoutBtn.classList.add("hidden");
-        accountBtn.classList.remove("hidden");
-      }
-    });
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              loginBtn.classList.add("hidden");
+              accountBtn.classList.remove("hidden");
+              logoutBtn.classList.remove("hidden");
+            } else {
+              loginBtn.classList.remove("hidden");
+              accountBtn.classList.add("hidden");
+              logoutBtn.classList.add("hidden");
+            }
+          });
 
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = baseUrl + "login/";
+          logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = baseUrl;
+          });
+        }
+      );
     });
   </script>
 </header>
