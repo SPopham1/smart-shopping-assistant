@@ -1,16 +1,30 @@
 ---
-
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout>
+  <Header />
+
+  <main class="container text-center py-12 md:py-16 lg:py-20">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">
+      Plan your shop. Walk less.
+    </h1>
+
+    <p class="text-lg text-gray-600 max-w-xl mx-auto mb-6">
+      Create a shopping list and get the most efficient in-store route.
+    </p>
+
+    <a href="#" class="btn-primary inline-block"> Create shopping list </a>
+  </main>
+  <script type="module">
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { auth } from "/firebase.js";
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = import.meta.env.BASE_URL + "login";
+      }
+    });
+  </script>
+</BaseLayout>
