@@ -17,27 +17,45 @@ const baseUrl = import.meta.env.BASE_URL;
         </a>
       </div>
 
-      <!-- Add Item Form -->
+      <!-- Add Item Form with Autocomplete -->
       <div class="card mb-6">
         <h2 class="text-xl font-semibold mb-4">Add Item</h2>
-        <form id="addItemForm" class="flex gap-3">
-          <input
-            type="text"
-            id="itemInput"
-            placeholder="Enter item name..."
-            required
-            class="input flex-1"
-          />
-          <button type="submit" class="btn-primary">Add</button>
-        </form>
+        <div class="relative">
+          <form id="addItemForm" class="flex gap-3">
+            <div class="flex-1 relative">
+              <input
+                type="text"
+                id="itemInput"
+                placeholder="Search for products..."
+                required
+                class="input w-full"
+                autocomplete="off"
+              />
+              <!-- Autocomplete dropdown -->
+              <div
+                id="autocompleteDropdown"
+                class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto"
+              >
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">Add</button>
+          </form>
+        </div>
       </div>
 
       <!-- Shopping List -->
       <div class="card mb-6">
-        <h2 class="text-xl font-semibold mb-4">Items</h2>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">
+            Items (<span id="itemCount">0</span>)
+          </h2>
+          <div class="text-sm text-gray-600">
+            Total: £<span id="totalPrice">0.00</span>
+          </div>
+        </div>
         <div id="itemsList" class="space-y-2">
           <p class="text-gray-500">
-            No items yet. Add some items to get started!
+            No items yet. Search and add products to get started!
           </p>
         </div>
       </div>
@@ -48,7 +66,7 @@ const baseUrl = import.meta.env.BASE_URL;
           Save List
         </button>
         <button id="generateRouteBtn" class="btn-primary flex-1">
-          Generate In-Store Route
+          Generate Shopping Route
         </button>
       </div>
     </div>
@@ -82,6 +100,26 @@ const baseUrl = import.meta.env.BASE_URL;
         </form>
       </div>
     </div>
+
+    <!-- Route Modal -->
+    <div
+      id="routeModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="card max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">Your Shopping Route</h2>
+          <button
+            id="closeRoute"
+            class="text-gray-500 hover:text-gray-700 text-2xl">×</button
+          >
+        </div>
+        <p class="text-gray-600 mb-4">
+          Follow this route for the most efficient shopping trip:
+        </p>
+        <div id="routeList" class="space-y-3"></div>
+      </div>
+    </div>
   </main>
 
   <script type="module" define:vars={{ baseUrl }}>
@@ -93,24 +131,45 @@ const baseUrl = import.meta.env.BASE_URL;
           const form = document.getElementById("addItemForm");
           const itemInput = document.getElementById("itemInput");
           const itemsList = document.getElementById("itemsList");
+          const autocompleteDropdown = document.getElementById(
+            "autocompleteDropdown"
+          );
           const generateRouteBtn = document.getElementById("generateRouteBtn");
           const saveListBtn = document.getElementById("saveListBtn");
           const saveModal = document.getElementById("saveModal");
           const saveForm = document.getElementById("saveForm");
           const cancelSave = document.getElementById("cancelSave");
           const listNameInput = document.getElementById("listNameInput");
+          const itemCountEl = document.getElementById("itemCount");
+          const totalPriceEl = document.getElementById("totalPrice");
+          const routeModal = document.getElementById("routeModal");
+          const closeRoute = document.getElementById("closeRoute");
+          const routeList = document.getElementById("routeList");
 
           let items = [];
           let currentUser = null;
+          let allProducts = [];
 
-          onAuthStateChanged(auth, (user) => {
+          onAuthStateChanged(auth, async (user) => {
             if (!user) {
               window.location.href = baseUrl + "login/";
             } else {
               currentUser = user;
-              checkForLoadList();
+              await loadProducts();
+              await checkForLoadList();
             }
           });
+
+          async function loadProducts() {
+            try {
+              const response = await fetch(baseUrl + "products.json");
+              const data = await response.json();
+              allProducts = data.products;
+              console.log("Loaded", allProducts.length, "products");
+            } catch (error) {
+              console.error("Error loading products:", error);
+            }
+          }
 
           async function checkForLoadList() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -132,18 +191,115 @@ const baseUrl = import.meta.env.BASE_URL;
             }
           }
 
+          // Autocomplete search
+          itemInput.addEventListener("input", (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+
+            if (searchTerm.length < 2) {
+              autocompleteDropdown.classList.add("hidden");
+              return;
+            }
+
+            const matches = allProducts
+              .filter(
+                (product) =>
+                  product.name.toLowerCase().includes(searchTerm) ||
+                  (product.brand &&
+                    product.brand.toLowerCase().includes(searchTerm)) ||
+                  product.category.toLowerCase().includes(searchTerm)
+              )
+              .slice(0, 8);
+
+            if (matches.length === 0) {
+              autocompleteDropdown.classList.add("hidden");
+              return;
+            }
+
+            autocompleteDropdown.innerHTML = matches
+              .map(
+                (product, idx) => `
+          <div class="autocomplete-item px-4 py-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0" data-index="${idx}">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-medium">${product.name}</div>
+                <div class="text-sm text-gray-600">${product.brand || ""} • ${product.category}</div>
+              </div>
+              <div class="text-right">
+                <div class="font-semibold text-green-700">£${product.price.toFixed(2)}</div>
+                <div class="text-xs text-gray-500">${product.unit}</div>
+              </div>
+            </div>
+          </div>
+        `
+              )
+              .join("");
+
+            autocompleteDropdown.classList.remove("hidden");
+
+            // Store matches in a closure variable
+            const currentMatches = matches;
+
+            // Add click handlers using event delegation
+            autocompleteDropdown
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const index = parseInt(item.dataset.index);
+                  const product = currentMatches[index];
+                  console.log("Clicked product:", product.name);
+                  addProductToList(product);
+                  itemInput.value = "";
+                  autocompleteDropdown.classList.add("hidden");
+                });
+              });
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener("click", (e) => {
+            if (
+              !itemInput.contains(e.target) &&
+              !autocompleteDropdown.contains(e.target)
+            ) {
+              autocompleteDropdown.classList.add("hidden");
+            }
+          });
+
+          // Prevent form submission when clicking autocomplete
+          autocompleteDropdown.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+          });
+
+          function addProductToList(product) {
+            items.push(product);
+            renderItems();
+          }
+
           function renderItems() {
             if (items.length === 0) {
               itemsList.innerHTML =
-                '<p class="text-gray-500">No items yet. Add some items to get started!</p>';
+                '<p class="text-gray-500">No items yet. Search and add products to get started!</p>';
+              itemCountEl.textContent = "0";
+              totalPriceEl.textContent = "0.00";
               return;
             }
+
+            const total = items.reduce((sum, item) => sum + item.price, 0);
 
             itemsList.innerHTML = items
               .map(
                 (item, index) => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="text-lg">${item}</span>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+            <div class="flex-1">
+              <div class="font-medium">${item.name}</div>
+              <div class="text-sm text-gray-600">${item.brand || ""} • ${item.unit}</div>
+              <div class="text-xs text-gray-500">Aisle ${item.aisle} • ${item.category}</div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <div class="font-semibold text-green-700">£${item.price.toFixed(2)}</div>
+              </div>
               <button 
                 onclick="removeItem(${index})" 
                 class="text-red-600 hover:text-red-800 font-medium"
@@ -151,9 +307,13 @@ const baseUrl = import.meta.env.BASE_URL;
                 Remove
               </button>
             </div>
-          `
+          </div>
+        `
               )
               .join("");
+
+            itemCountEl.textContent = items.length;
+            totalPriceEl.textContent = total.toFixed(2);
           }
 
           window.removeItem = function (index) {
@@ -163,12 +323,23 @@ const baseUrl = import.meta.env.BASE_URL;
 
           form.addEventListener("submit", (e) => {
             e.preventDefault();
+            // Allow manual text entry as fallback
             const itemName = itemInput.value.trim();
 
             if (itemName) {
-              items.push(itemName);
+              // Create a simple product object
+              const manualProduct = {
+                id: "manual_" + Date.now(),
+                name: itemName,
+                brand: null,
+                category: "Other",
+                aisle: 99,
+                price: 0,
+                unit: "",
+              };
+              addProductToList(manualProduct);
               itemInput.value = "";
-              renderItems();
+              autocompleteDropdown.classList.add("hidden");
             }
           });
 
@@ -211,13 +382,58 @@ const baseUrl = import.meta.env.BASE_URL;
               return;
             }
 
-            // TODO: Implement route generation logic
-            alert(
-              `Route generation coming soon! You have ${items.length} items.`
-            );
+            // Sort items by aisle number
+            const sortedItems = [...items].sort((a, b) => a.aisle - b.aisle);
+
+            // Group by aisle
+            const groupedByAisle = sortedItems.reduce((acc, item) => {
+              if (!acc[item.aisle]) {
+                acc[item.aisle] = [];
+              }
+              acc[item.aisle].push(item);
+              return acc;
+            }, {});
+
+            routeList.innerHTML = Object.keys(groupedByAisle)
+              .sort((a, b) => parseInt(a) - parseInt(b))
+              .map(
+                (aisle) => `
+            <div class="border-l-4 border-green-600 pl-4 py-2">
+              <div class="font-bold text-lg mb-2">Aisle ${aisle}</div>
+              <div class="space-y-1">
+                ${groupedByAisle[aisle]
+                  .map(
+                    (item) => `
+                  <div class="flex justify-between items-center">
+                    <span>• ${item.name}</span>
+                    <span class="text-sm text-gray-600">${item.category}</span>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `
+              )
+              .join("");
+
+            routeModal.classList.remove("hidden");
+          });
+
+          closeRoute.addEventListener("click", () => {
+            routeModal.classList.add("hidden");
           });
         }
       );
     });
   </script>
+  <style>
+    #autocompleteDropdown {
+      pointer-events: auto !important;
+    }
+
+    .autocomplete-item {
+      user-select: none;
+    }
+  </style>
 </BaseLayout>

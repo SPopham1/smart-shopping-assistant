@@ -1,0 +1,243 @@
+{
+  "products": [
+    {
+      "id": "prod_001",
+      "name": "Whole Milk",
+      "brand": "Sainsbury's",
+      "category": "Dairy & Eggs",
+      "aisle": 1,
+      "price": 1.3,
+      "unit": "2 pints",
+      "imageUrl": null
+    },
+    {
+      "id": "prod_002",
+      "name": "Semi-Skimmed Milk",
+      "brand": "Sainsbury's",
+      "category": "Dairy & Eggs",
+      "aisle": 1,
+      "price": 1.3,
+      "unit": "2 pints"
+    },
+    {
+      "id": "prod_003",
+      "name": "White Bread",
+      "brand": "Hovis",
+      "category": "Bakery",
+      "aisle": 2,
+      "price": 1.1,
+      "unit": "800g"
+    },
+    {
+      "id": "prod_004",
+      "name": "Brown Bread",
+      "brand": "Kingsmill",
+      "category": "Bakery",
+      "aisle": 2,
+      "price": 1.15,
+      "unit": "800g"
+    },
+    {
+      "id": "prod_005",
+      "name": "Free Range Eggs",
+      "brand": "Sainsbury's",
+      "category": "Dairy & Eggs",
+      "aisle": 1,
+      "price": 2.5,
+      "unit": "12 pack"
+    },
+    {
+      "id": "prod_006",
+      "name": "Cheddar Cheese",
+      "brand": "Cathedral City",
+      "category": "Dairy & Eggs",
+      "aisle": 1,
+      "price": 2.75,
+      "unit": "350g"
+    },
+    {
+      "id": "prod_007",
+      "name": "Bananas",
+      "brand": null,
+      "category": "Fruit & Vegetables",
+      "aisle": 3,
+      "price": 0.9,
+      "unit": "per kg"
+    },
+    {
+      "id": "prod_008",
+      "name": "Apples",
+      "brand": "Braeburn",
+      "category": "Fruit & Vegetables",
+      "aisle": 3,
+      "price": 1.8,
+      "unit": "6 pack"
+    },
+    {
+      "id": "prod_009",
+      "name": "Tomatoes",
+      "brand": "Sainsbury's",
+      "category": "Fruit & Vegetables",
+      "aisle": 3,
+      "price": 0.85,
+      "unit": "400g"
+    },
+    {
+      "id": "prod_010",
+      "name": "Chicken Breast",
+      "brand": "Sainsbury's",
+      "category": "Meat & Poultry",
+      "aisle": 4,
+      "price": 3.5,
+      "unit": "300g"
+    },
+    {
+      "id": "prod_011",
+      "name": "Minced Beef",
+      "brand": "Sainsbury's",
+      "category": "Meat & Poultry",
+      "aisle": 4,
+      "price": 2.5,
+      "unit": "500g"
+    },
+    {
+      "id": "prod_012",
+      "name": "Salmon Fillets",
+      "brand": "Sainsbury's",
+      "category": "Fish & Seafood",
+      "aisle": 5,
+      "price": 4.0,
+      "unit": "240g"
+    },
+    {
+      "id": "prod_013",
+      "name": "Pasta",
+      "brand": "Barilla",
+      "category": "Pasta & Rice",
+      "aisle": 6,
+      "price": 1.0,
+      "unit": "500g"
+    },
+    {
+      "id": "prod_014",
+      "name": "Basmati Rice",
+      "brand": "Tilda",
+      "category": "Pasta & Rice",
+      "aisle": 6,
+      "price": 2.0,
+      "unit": "1kg"
+    },
+    {
+      "id": "prod_015",
+      "name": "Baked Beans",
+      "brand": "Heinz",
+      "category": "Tinned Food",
+      "aisle": 7,
+      "price": 0.8,
+      "unit": "420g"
+    },
+    {
+      "id": "prod_016",
+      "name": "Chopped Tomatoes",
+      "brand": "Napolina",
+      "category": "Tinned Food",
+      "aisle": 7,
+      "price": 0.45,
+      "unit": "400g"
+    },
+    {
+      "id": "prod_017",
+      "name": "Orange Juice",
+      "brand": "Tropicana",
+      "category": "Drinks",
+      "aisle": 8,
+      "price": 2.5,
+      "unit": "1L"
+    },
+    {
+      "id": "prod_018",
+      "name": "Coca Cola",
+      "brand": "Coca Cola",
+      "category": "Drinks",
+      "aisle": 8,
+      "price": 1.85,
+      "unit": "2L"
+    },
+    {
+      "id": "prod_019",
+      "name": "Tea Bags",
+      "brand": "PG Tips",
+      "category": "Tea & Coffee",
+      "aisle": 9,
+      "price": 3.0,
+      "unit": "80 pack"
+    },
+    {
+      "id": "prod_020",
+      "name": "Coffee",
+      "brand": "Nescafe",
+      "category": "Tea & Coffee",
+      "aisle": 9,
+      "price": 4.5,
+      "unit": "200g"
+    },
+    {
+      "id": "prod_021",
+      "name": "Toilet Paper",
+      "brand": "Andrex",
+      "category": "Household",
+      "aisle": 10,
+      "price": 5.0,
+      "unit": "9 pack"
+    },
+    {
+      "id": "prod_022",
+      "name": "Kitchen Roll",
+      "brand": "Plenty",
+      "category": "Household",
+      "aisle": 10,
+      "price": 3.0,
+      "unit": "4 pack"
+    },
+    {
+      "id": "prod_023",
+      "name": "Washing Up Liquid",
+      "brand": "Fairy",
+      "category": "Household",
+      "aisle": 10,
+      "price": 1.5,
+      "unit": "433ml"
+    },
+    {
+      "id": "prod_024",
+      "name": "Cereal",
+      "brand": "Kellogg's Corn Flakes",
+      "category": "Breakfast",
+      "aisle": 11,
+      "price": 2.5,
+      "unit": "500g"
+    },
+    {
+      "id": "prod_025",
+      "name": "Butter",
+      "brand": "Lurpak",
+      "category": "Dairy & Eggs",
+      "aisle": 1,
+      "price": 1.7,
+      "unit": "250g"
+    }
+  ],
+  "categories": [
+    { "name": "Dairy & Eggs", "aisle": 1 },
+    { "name": "Bakery", "aisle": 2 },
+    { "name": "Fruit & Vegetables", "aisle": 3 },
+    { "name": "Meat & Poultry", "aisle": 4 },
+    { "name": "Fish & Seafood", "aisle": 5 },
+    { "name": "Pasta & Rice", "aisle": 6 },
+    { "name": "Tinned Food", "aisle": 7 },
+    { "name": "Drinks", "aisle": 8 },
+    { "name": "Tea & Coffee", "aisle": 9 },
+    { "name": "Household", "aisle": 10 },
+    { "name": "Breakfast", "aisle": 11 }
+  ]
+}
