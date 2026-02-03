@@ -123,8 +123,8 @@ const baseUrl = import.meta.env.BASE_URL;
                         .slice(0, 5)
                         .map(
                           (item) => `
-                        <span class="px-2 py-1 bg-gray-100 rounded text-sm">${item}</span>
-                      `
+                        <span class="px-2 py-1 bg-gray-100 rounded text-sm">${item.name || item}</span>
+                      `,
                         )
                         .join("")}
                       ${list.items.length > 5 ? `<span class="px-2 py-1 bg-gray-100 rounded text-sm">+${list.items.length - 5} more</span>` : ""}
@@ -143,7 +143,7 @@ const baseUrl = import.meta.env.BASE_URL;
                   </div>
                 </div>
               </div>
-            `
+            `,
                   )
                   .join("");
               } catch (error) {
@@ -211,7 +211,7 @@ const baseUrl = import.meta.env.BASE_URL;
                 await saveShoppingList(
                   currentUser.uid,
                   sharedList.listName + " (imported)",
-                  sharedList.items
+                  sharedList.items,
                 );
 
                 alert("List imported successfully!");
@@ -221,9 +221,9 @@ const baseUrl = import.meta.env.BASE_URL;
                 alert("Error importing list: " + error.message);
               }
             });
-          }
+          },
         );
-      }
+      },
     );
   </script>
 </BaseLayout>
